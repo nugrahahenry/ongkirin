@@ -6,7 +6,7 @@ import '../location_search/location_search_sheet.dart';
 import '../result/result_screen.dart';
 import 'calculator_controller.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final CalculatorController controller;
   final VoidCallback onOpenApiSetup;
 
@@ -15,6 +15,39 @@ class HomeScreen extends StatelessWidget {
     required this.controller,
     required this.onOpenApiSetup,
   });
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final TextEditingController _weightController;
+
+  CalculatorController get controller => widget.controller;
+  VoidCallback get onOpenApiSetup => widget.onOpenApiSetup;
+
+  @override
+  void initState() {
+    super.initState();
+    _weightController = TextEditingController(text: controller.weightText);
+    controller.addListener(_syncWeightField);
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(_syncWeightField);
+    _weightController.dispose();
+    super.dispose();
+  }
+
+  void _syncWeightField() {
+    final value = controller.weightText;
+    if (_weightController.text == value) return;
+    _weightController.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+  }
 
   Future<void> _pickLocation(
     BuildContext context, {
@@ -127,6 +160,7 @@ class HomeScreen extends StatelessWidget {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
+              controller: _weightController,
               onChanged: controller.setWeight,
               decoration: InputDecoration(
                 labelText: 'Berat paket',
