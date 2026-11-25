@@ -1,28 +1,114 @@
-# Ongkirin
+# Ongkirin 📦
 
-Flutter mobile app untuk menghitung estimasi ongkos kirim domestik menggunakan REST API RajaOngkir.
+Kalkulator ongkos kirim domestik Indonesia berbasis Flutter dan RajaOngkir. Ongkirin membantu pengguna memilih lokasi, memasukkan berat paket, membandingkan kurir, lalu melihat estimasi biaya dan waktu pengiriman dari satu alur yang ringkas.
 
-## Status
+![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Web-0F766E)
+![Status](https://img.shields.io/badge/status-active%20development-F59E0B)
 
-Scaffold MVP Flutter sudah dibuat dengan alur pengaturan API key, pencarian lokasi, perhitungan ongkos kirim, hasil tarif, dan state utama. Contract endpoint tetap perlu diverifikasi memakai akun RajaOngkir milik pemilik project sebelum uji API langsung.
+## ✨ Fitur
 
-## Scope MVP
+- Pemilihan asal dan tujuan melalui pencarian lokasi RajaOngkir
+- Tombol tukar asal dan tujuan
+- Preset berat `250 g`, `500 g`, `1 kg`, dan `2 kg`
+- Pilihan kurir dan perhitungan estimasi biaya
+- Ringkasan pengiriman yang berubah mengikuti input
+- Penanda opsi termurah
+- Loading, validasi, empty state, timeout, unauthorized, dan server error state
+- Proxy Node lokal untuk mengatasi CORS pada Flutter Web
+- API key Web disimpan di server proxy, bukan di bundle browser
 
-- API key RajaOngkir dari akun milik pemilik project
-- Pemilihan asal dan tujuan
-- Berat paket
-- Pilihan kurir
-- Hasil biaya dan estimasi pengiriman
-- Loading, validation, empty, network, unauthorized, dan server error state
+## 🧭 Alur aplikasi
 
-## Dokumentasi
+```mermaid
+flowchart LR
+    A[📱 Flutter Web atau Mobile] --> B[🧾 Input pengiriman]
+    B --> C[🔎 Pencarian lokasi]
+    B --> D[🚚 Hitung ongkir]
+    C --> E[RajaOngkir API]
+    D --> E
+    E --> F[✨ Hasil dan opsi termurah]
+```
 
-Mulai dari [docs/README.md](docs/README.md).
+## 🏗️ Arsitektur Web
 
-## Referensi
+```mermaid
+sequenceDiagram
+    participant HP as Chrome HP
+    participant Flutter as Flutter Web :8080
+    participant Proxy as Node Proxy :8787
+    participant API as RajaOngkir
+    HP->>Flutter: Buka melalui IP komputer
+    Flutter->>Proxy: Request lokasi atau ongkir
+    Proxy->>API: Request dengan API key server
+    API-->>Proxy: Response tarif
+    Proxy-->>Flutter: Response dengan CORS lokal
+    Flutter-->>HP: Tampilkan hasil
+```
 
-- [Dokumentasi RajaOngkir](https://www.rajaongkir.com/docs)
-- Materi kelas `REST API.pptx` yang dikirim Diego
+## 🚀 Menjalankan secara lokal
 
-API key tidak boleh dimasukkan ke repository atau screenshot.
+### 1. Siapkan API key di proxy
 
+Buat file `proxy/.env` secara lokal. File ini tidak boleh di-commit.
+
+```env
+RAJAONGKIR_API_KEY=isi_api_key_rajaongkir
+PORT=8787
+```
+
+### 2. Jalankan proxy
+
+```powershell
+cd proxy
+node server.mjs
+```
+
+### 3. Jalankan Flutter Web
+
+Buka terminal kedua dari root project.
+
+```powershell
+flutter pub get
+flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
+```
+
+Untuk menguji dari HP, komputer dan HP harus tersambung ke Wi-Fi yang sama. Buka alamat berikut di Chrome HP dengan IP komputer.
+
+```text
+http://IP_KOMPUTER:8080
+```
+
+Contoh:
+
+```text
+http://192.168.1.5:8080
+```
+
+Jangan memakai `localhost` atau `127.0.0.1` dari HP.
+
+## 🧪 Pemeriksaan kode
+
+```powershell
+dart analyze lib test
+flutter test --no-pub
+node --check proxy/server.mjs
+```
+
+Jika `flutter test` perlu mengunduh package dan jaringan sedang bermasalah, jalankan ulang setelah koneksi ke `pub.dev` tersedia.
+
+## 🔐 Keamanan API key
+
+- API key Web hanya dibaca dari `proxy/.env`.
+- `proxy/.env` sudah diabaikan oleh Git.
+- Jangan menaruh API key di `lib/`, `web/`, README, screenshot, log, atau prompt.
+- Jika key pernah terlihat di screenshot atau chat, revoke dan buat key baru.
+
+## 🛠️ Status pengembangan
+
+Ongkirin sedang dikembangkan bertahap dengan fokus pada pengalaman mobile, koneksi Web melalui proxy, lokasi otomatis, riwayat tujuan, dan rekomendasi tujuan yang memiliki dasar data yang jelas.
+
+## 📄 Lisensi dan kontribusi
+
+Project ini dikembangkan untuk kebutuhan pembelajaran dan pengembangan aplikasi. Perubahan sebaiknya melewati analyzer, test yang relevan, dan pengujian melalui entry point aplikasi sebelum digabungkan.
