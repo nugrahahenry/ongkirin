@@ -50,10 +50,15 @@ const server = http.createServer(async (request, response) => {
   }
 
   try {
+    if (!process.env.RAJAONGKIR_API_KEY) {
+      response.writeHead(500, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ message: 'RAJAONGKIR_API_KEY belum diatur di proxy/.env.' }));
+      return;
+    }
     const body = await readBody(request);
     const upstreamUrl = `${upstreamOrigin}${requestUrl.pathname}${requestUrl.search}`;
     const headers = {
-      key: process.env.RAJAONGKIR_API_KEY || request.headers.key || '',
+      key: process.env.RAJAONGKIR_API_KEY,
     };
     if (request.headers['content-type']) {
       headers['Content-Type'] = request.headers['content-type'];
@@ -78,6 +83,6 @@ const server = http.createServer(async (request, response) => {
 server.listen(port, '0.0.0.0', () => {
   console.log(`RajaOngkir proxy aktif di http://0.0.0.0:${port}`);
   if (!process.env.RAJAONGKIR_API_KEY) {
-    console.log('RAJAONGKIR_API_KEY belum ada di proxy/.env. Proxy akan memakai header key dari aplikasi.');
+    console.log('RAJAONGKIR_API_KEY belum ada di proxy/.env. Request API akan ditolak.');
   }
 });
