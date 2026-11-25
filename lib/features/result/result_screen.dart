@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/navigation/route_launcher.dart';
 import '../../data/models/shipping_option.dart';
 import '../calculator/calculator_controller.dart';
 
@@ -59,6 +60,8 @@ class _ResultScreenState extends State<ResultScreen> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           children: [
             _buildSummary(),
+            const SizedBox(height: 12),
+            _buildRouteCard(),
             const SizedBox(height: 20),
             if (controller.status == CalculationStatus.empty)
               _buildEmpty(context)
@@ -109,6 +112,58 @@ class _ResultScreenState extends State<ResultScreen> {
           Text(
             '${controller.weightInGrams ?? 0} g',
             style: const TextStyle(color: Color(0xFF64748B)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRouteCard() {
+    final origin = controller.origin?.hierarchyLabel ?? controller.origin?.name;
+    final destination =
+        controller.destination?.hierarchyLabel ?? controller.destination?.name;
+    final canOpenRoute = origin != null && destination != null;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFBFDBFE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.map_outlined, color: Color(0xFF1D4ED8)),
+              SizedBox(width: 8),
+              Text(
+                'Rute perjalanan',
+                style: TextStyle(
+                  color: Color(0xFF1E3A8A),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Lihat rute kendaraan dan estimasi perjalanan di Google Maps. Estimasi paket tetap mengikuti RajaOngkir.',
+            style: TextStyle(color: Color(0xFF334155), height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: canOpenRoute
+                  ? () => openDrivingRoute(
+                      origin: origin,
+                      destination: destination,
+                    )
+                  : null,
+              icon: const Icon(Icons.open_in_new_rounded),
+              label: const Text('Buka rute di Google Maps'),
+            ),
           ),
         ],
       ),
