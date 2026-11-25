@@ -316,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
             (preset) => ActionChip(
               avatar: const Icon(Icons.add_rounded, size: 16),
               label: Text(preset.label),
-              onPressed: () => controller.setWeightPreset(preset.grams),
+              onPressed: () => controller.addWeight(preset.grams),
             ),
           )
           .toList(),

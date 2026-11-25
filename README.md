@@ -11,7 +11,7 @@ Kalkulator ongkos kirim domestik Indonesia berbasis Flutter dan RajaOngkir. Ongk
 
 - Pemilihan asal dan tujuan melalui pencarian lokasi RajaOngkir
 - Tombol tukar asal dan tujuan
-- Preset berat `250 g`, `500 g`, `1 kg`, dan `2 kg`
+- Tombol tambah berat `+250 g`, `+500 g`, `+1 kg`, dan `+2 kg`
 - Pilihan kurir dan perhitungan estimasi biaya
 - Ringkasan pengiriman yang berubah mengikuti input
 - Penanda opsi termurah

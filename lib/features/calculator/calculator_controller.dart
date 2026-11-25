@@ -111,15 +111,29 @@ class CalculatorController extends ChangeNotifier {
   }
 
   void setWeightPreset(int grams) {
-    if (grams >= 1000 && grams % 1000 == 0) {
+    _setWeightFromGrams(grams);
+    _clearError();
+    notifyListeners();
+  }
+
+  void addWeight(int grams) {
+    final currentGrams = weightInGrams ?? 0;
+    _setWeightFromGrams(currentGrams + grams);
+    _clearError();
+    notifyListeners();
+  }
+
+  void _setWeightFromGrams(int grams) {
+    if (grams >= 1000) {
       weightUnit = 'kg';
-      weightText = '${grams ~/ 1000}';
+      final kilograms = grams / 1000;
+      weightText = kilograms == kilograms.roundToDouble()
+          ? kilograms.toInt().toString()
+          : kilograms.toString();
     } else {
       weightUnit = 'gram';
       weightText = '$grams';
     }
-    _clearError();
-    notifyListeners();
   }
 
   void setCourier(CourierChoice value) {
