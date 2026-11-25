@@ -71,33 +71,30 @@ Jangan menampilkan nilai key di output, jangan menyalinnya ke prompt, jangan men
 6. Reuse model, service, controller, dan theme yang sudah ada.
 7. Setelah perubahan, jalankan `dart analyze` dan test yang relevan.
 
-## Prioritas fitur saat diminta Henry
+## Target eksekusi
 
-Kerjakan satu tahap sampai stabil sebelum pindah ke tahap berikutnya.
+Kerjakan task pengembangan terbaru dari Henry secara end-to-end. Jangan membuat roadmap, membagi pekerjaan menjadi tahap, atau berhenti setelah memberikan saran. Baca kebutuhan terbaru, ubah kode yang diperlukan, integrasikan ke entry point aplikasi, jalankan pemeriksaan, lalu perbaiki semua masalah yang ditemukan sampai task tersebut berhasil.
 
-### Tahap 1 — UX inti
+Pertahankan pengalaman aplikasi yang interaktif dan mudah dipahami. Fitur seperti tukar asal dan tujuan, preset berat, ringkasan pengiriman, emoji yang fungsional, lokasi otomatis, dan rekomendasi tujuan hanya dikerjakan jika termasuk dalam task terbaru dari Henry.
 
-- Rapikan tampilan nama lokasi dan hilangkan placeholder `-`.
-- Tambahkan tombol tukar asal dan tujuan.
-- Tambahkan preset berat `250 gram`, `500 gram`, `1 kg`, dan `2 kg`.
-- Tambahkan ringkasan pengiriman yang berubah saat input diperbarui.
-- Tambahkan emoji yang fungsional dan tidak berlebihan, seperti 📍 untuk lokasi, 📦 untuk paket, 🚚 untuk kurir, dan ✨ untuk rekomendasi.
+Untuk fitur lokasi otomatis, gunakan izin lokasi saat pengguna menekan tombol, tidak perlu izin notifikasi, pertahankan pencarian manual sebagai fallback, dan jangan menebak tujuan tanpa sumber data yang jelas.
 
-### Tahap 2 — lokasi otomatis
+## Pengujian melalui HP
 
-- Tambahkan tombol `Gunakan lokasi saya` pada pemilihan asal.
-- Minta izin lokasi hanya setelah tombol ditekan.
-- Tidak perlu izin notifikasi.
-- Gunakan koordinat untuk reverse geocoding, lalu cocokkan hasil teksnya ke pencarian lokasi RajaOngkir.
-- Tampilkan konfirmasi sebelum memilih hasil sebagai asal.
-- Tetap sediakan pencarian manual dan pesan error yang jelas.
+Jika task menyentuh Flutter Web atau UI Web, komputer dan HP harus tersambung ke jaringan Wi-Fi yang sama. Jalankan proxy dan Flutter Web di dua terminal:
 
-### Tahap 3 — rekomendasi tujuan
+```powershell
+cd proxy
+node server.mjs
+```
 
-- Tambahkan tujuan terakhir dan tujuan favorit secara lokal.
-- Tambahkan rekomendasi populer hanya jika sumber datanya tersedia dan dapat dijelaskan.
-- Jangan menebak tujuan pengguna tanpa dasar.
+```powershell
+flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
+```
 
+Buka alamat `http://IP_KOMPUTER:8080` dari Chrome HP. Jangan memakai `localhost` atau `127.0.0.1` di HP. Jika HP tidak bisa terhubung, periksa koneksi Wi-Fi, IP komputer, dan firewall sebelum menyimpulkan ada bug aplikasi.
+
+Setiap UI Web dianggap berhasil hanya setelah dapat dibuka dari HP pada jaringan yang sama dan request API tetap melewati proxy tanpa error CORS.
 ## Kriteria selesai
 
 - `dart analyze` tidak memiliki error.
@@ -107,4 +104,4 @@ Kerjakan satu tahap sampai stabil sebelum pindah ke tahap berikutnya.
 - Android dan Windows tetap bisa memakai secure storage.
 - Perubahan disertai ringkasan file yang diubah dan langkah pengujian.
 
-Mulai dengan audit kode yang ada, lalu kerjakan Tahap 1. Jangan langsung menambahkan lokasi otomatis sebelum alur manual dan proxy terverifikasi.
+Mulai setiap task dengan audit singkat, lalu kerjakan sampai entry point aplikasi dan pengujian yang relevan berhasil. Jangan berhenti pada tahap rencana atau hasil parsial.
