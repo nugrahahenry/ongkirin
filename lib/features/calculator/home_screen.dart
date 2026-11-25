@@ -108,6 +108,18 @@ class HomeScreen extends StatelessWidget {
               icon: Icons.location_on_rounded,
               onTap: () => _pickLocation(context, origin: false),
             ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: controller.origin == null &&
+                        controller.destination == null
+                    ? null
+                    : controller.swapLocations,
+                icon: const Icon(Icons.swap_vert_rounded, size: 19),
+                label: const Text('Tukar asal dan tujuan'),
+              ),
+            ),
             const SizedBox(height: 12),
             TextField(
               keyboardType: const TextInputType.numberWithOptions(
@@ -132,6 +144,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 10),
+            _buildWeightPresets(),
             const SizedBox(height: 12),
             DropdownButtonFormField<CourierChoice>(
               initialValue: controller.selectedCourier,
@@ -149,6 +163,12 @@ class HomeScreen extends StatelessWidget {
                 if (value != null) controller.setCourier(value);
               },
             ),
+            if (controller.origin != null ||
+                controller.destination != null ||
+                controller.weightText.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              _buildSummaryCard(),
+            ],
             if (controller.errorMessage != null &&
                 controller.status == CalculationStatus.failure) ...[
               const SizedBox(height: 16),
@@ -240,6 +260,60 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           TextButton(onPressed: onOpenApiSetup, child: const Text('Atur')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeightPresets() {
+    const presets = <({String label, int grams})>[
+      (label: '250 g', grams: 250),
+      (label: '500 g', grams: 500),
+      (label: '1 kg', grams: 1000),
+      (label: '2 kg', grams: 2000),
+    ];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: presets
+          .map(
+            (preset) => ActionChip(
+              avatar: const Icon(Icons.add_rounded, size: 16),
+              label: Text(preset.label),
+              onPressed: () => controller.setWeightPreset(preset.grams),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildSummaryCard() {
+    final weight = controller.weightInGrams;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE6FFFB),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF99F6E4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.receipt_long_rounded, color: Color(0xFF0F766E)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '${controller.origin?.name ?? 'Asal belum dipilih'} → '
+              '${controller.destination?.name ?? 'Tujuan belum dipilih'}\n'
+              'Berat ${weight == null ? 'belum diisi' : '$weight gram'} · '
+              '${controller.selectedCourier.label}',
+              style: const TextStyle(
+                color: Color(0xFF115E59),
+                height: 1.4,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ],
       ),
     );

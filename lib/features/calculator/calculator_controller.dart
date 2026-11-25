@@ -64,6 +64,14 @@ class CalculatorController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void swapLocations() {
+    final currentOrigin = origin;
+    origin = destination;
+    destination = currentOrigin;
+    _clearError();
+    notifyListeners();
+  }
+
   void setWeight(String value) {
     weightText = value;
     _clearError();
@@ -72,6 +80,18 @@ class CalculatorController extends ChangeNotifier {
 
   void setWeightUnit(String value) {
     weightUnit = value;
+    notifyListeners();
+  }
+
+  void setWeightPreset(int grams) {
+    if (grams >= 1000 && grams % 1000 == 0) {
+      weightUnit = 'kg';
+      weightText = '${grams ~/ 1000}';
+    } else {
+      weightUnit = 'gram';
+      weightText = '$grams';
+    }
+    _clearError();
     notifyListeners();
   }
 

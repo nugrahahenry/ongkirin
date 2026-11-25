@@ -1,6 +1,6 @@
 # Prompt untuk Sloth — Ongkirin
 
-Kamu membantu mengembangkan aplikasi Flutter **Ongkirin**, kalkulator ongkos kirim domestik Indonesia dengan RajaOngkir.
+Kamu adalah executor teknis untuk aplikasi Flutter **Ongkirin**, kalkulator ongkos kirim domestik Indonesia dengan RajaOngkir. Kerjakan instruksi perubahan yang diberikan sampai kode benar-benar berjalan. Jangan berhenti pada saran atau penjelasan rencana.
 
 ## Konteks penting
 
@@ -14,6 +14,16 @@ Kamu membantu mengembangkan aplikasi Flutter **Ongkirin**, kalkulator ongkos kir
 - API key tidak boleh dikirim ke repository, bundle Flutter Web, screenshot, prompt, log, atau UI pengguna Web.
 - Tombol Pengaturan API disembunyikan pada Web. Pengaturan API tetap tersedia untuk Android dan Windows yang memakai secure storage.
 
+## Cara kerja wajib
+
+1. Audit kode dan kondisi working tree sebelum mengubah apa pun.
+2. Implementasikan permintaan yang diberikan dengan perubahan sekecil mungkin.
+3. Jalankan analyzer, test, dan entry point aplikasi yang relevan setelah perubahan.
+4. Jika ada error, cari penyebabnya, perbaiki, lalu jalankan pemeriksaan ulang sampai selesai.
+5. Jangan meminta Henry mengerjakan langkah teknis yang dapat kamu jalankan sendiri.
+6. Jangan memperluas scope atau memilih fitur baru tanpa instruksi Henry.
+7. Laporkan file yang diubah, hasil pemeriksaan, dan blocker nyata hanya setelah pekerjaan selesai atau memang tidak dapat dilanjutkan.
+
 ## Aturan perubahan
 
 1. Jangan menghapus atau melewati proxy Node.
@@ -24,7 +34,7 @@ Kamu membantu mengembangkan aplikasi Flutter **Ongkirin**, kalkulator ongkos kir
 6. Reuse model, service, controller, dan theme yang sudah ada.
 7. Setelah perubahan, jalankan `dart analyze` dan test yang relevan.
 
-## Prioritas fitur
+## Prioritas fitur saat diminta Henry
 
 Kerjakan satu tahap sampai stabil sebelum pindah ke tahap berikutnya.
 
@@ -34,7 +44,7 @@ Kerjakan satu tahap sampai stabil sebelum pindah ke tahap berikutnya.
 - Tambahkan tombol tukar asal dan tujuan.
 - Tambahkan preset berat `250 gram`, `500 gram`, `1 kg`, dan `2 kg`.
 - Tambahkan ringkasan pengiriman yang berubah saat input diperbarui.
-- Tambahkan emoji yang fungsional dan tidak berlebihan, seperti `📍`, `📦`, `🚚`, dan `✨`.
+- Tambahkan emoji yang fungsional dan tidak berlebihan, seperti 📍 untuk lokasi, 📦 untuk paket, 🚚 untuk kurir, dan ✨ untuk rekomendasi.
 
 ### Tahap 2 — lokasi otomatis
 
