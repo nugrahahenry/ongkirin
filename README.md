@@ -76,6 +76,26 @@ flutter pub get
 flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
 ```
 
+### Preview Web lebih cepat
+
+Untuk preview yang lebih ringan setelah build release pertama, gunakan terminal kedua:
+
+```powershell
+.\tool\serve-web-fast.ps1
+```
+
+Setelah tidak ada perubahan pada kode Flutter, jalankan server tanpa build ulang:
+
+```powershell
+.\tool\serve-web-fast.ps1 -SkipBuild
+```
+
+Proxy tetap harus berjalan di terminal lain:
+
+```powershell
+node proxy\server.mjs
+```
+
 Untuk menguji dari HP, komputer dan HP harus tersambung ke Wi-Fi yang sama. Buka alamat berikut di Chrome HP dengan IP komputer.
 
 ```text
@@ -98,6 +118,12 @@ Browser dapat membatasi geolocation pada alamat HTTP lokal. Jika Chrome meminta 
 dart analyze lib test
 flutter test --no-pub
 node --check proxy/server.mjs
+```
+
+Sloth dapat menjalankan pemeriksaan yang sama melalui:
+
+```powershell
+.\tool\check.ps1
 ```
 
 Jika `flutter test` perlu mengunduh package dan jaringan sedang bermasalah, jalankan ulang setelah koneksi ke `pub.dev` tersedia.
