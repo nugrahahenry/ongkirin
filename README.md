@@ -21,7 +21,7 @@ Kalkulator ongkos kirim domestik Indonesia berbasis Flutter dan RajaOngkir. Ongk
 - Tombol lokasi otomatis dengan fallback pencarian manual
 - Rekomendasi tujuan terakhir yang disimpan lokal
 
-## 🧭 Alur aplikasi
+## 🛣 Alur aplikasi
 
 ```mermaid
 flowchart LR
@@ -33,7 +33,7 @@ flowchart LR
     E --> F[✨ Hasil dan opsi termurah]
 ```
 
-## 🏗️ Arsitektur Web
+## ⚙ Arsitektur Web
 
 ```mermaid
 sequenceDiagram
@@ -67,18 +67,9 @@ cd proxy
 node server.mjs
 ```
 
-### 3. Jalankan Flutter Web
+### 3. Preview Web cepat
 
-Buka terminal kedua dari root project.
-
-```powershell
-flutter pub get
-flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
-```
-
-### Preview Web lebih cepat
-
-Untuk preview yang lebih ringan setelah build release pertama, gunakan terminal kedua:
+Buka terminal kedua dari root project. Build release pertama membutuhkan waktu, tetapi halaman berikutnya jauh lebih cepat dibuka.
 
 ```powershell
 .\tool\serve-web-fast.ps1
@@ -88,6 +79,15 @@ Setelah tidak ada perubahan pada kode Flutter, jalankan server tanpa build ulang
 
 ```powershell
 .\tool\serve-web-fast.ps1 -SkipBuild
+```
+
+### Debug Web dengan hot reload
+
+Gunakan mode ini jika sedang mengerjakan perubahan kecil dan membutuhkan hot reload.
+
+```powershell
+flutter pub get
+flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
 ```
 
 Proxy tetap harus berjalan di terminal lain:
@@ -128,14 +128,14 @@ Sloth dapat menjalankan pemeriksaan yang sama melalui:
 
 Jika `flutter test` perlu mengunduh package dan jaringan sedang bermasalah, jalankan ulang setelah koneksi ke `pub.dev` tersedia.
 
-## 🔐 Keamanan API key
+## 🔒 Keamanan API key
 
 - API key Web hanya dibaca dari `proxy/.env`.
 - `proxy/.env` sudah diabaikan oleh Git.
 - Jangan menaruh API key di `lib/`, `web/`, README, screenshot, log, atau prompt.
 - Jika key pernah terlihat di screenshot atau chat, revoke dan buat key baru.
 
-## 🛠️ Status pengembangan
+## 🛠 Status pengembangan
 
 Ongkirin sedang dikembangkan bertahap dengan fokus pada pengalaman mobile, koneksi Web melalui proxy, lokasi otomatis, riwayat tujuan, dan rekomendasi tujuan yang memiliki dasar data yang jelas.
 
