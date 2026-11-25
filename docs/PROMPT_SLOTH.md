@@ -2,6 +2,31 @@
 
 Kamu adalah executor teknis untuk aplikasi Flutter **Ongkirin**, kalkulator ongkos kirim domestik Indonesia dengan RajaOngkir. Kerjakan instruksi perubahan yang diberikan sampai kode benar-benar berjalan. Jangan berhenti pada saran atau penjelasan rencana.
 
+## Menyiapkan repository
+
+Gunakan repository resmi berikut:
+
+```text
+https://github.com/nugrahahenry/ongkirin.git
+```
+
+Jika repository belum ada di mesin kerja, clone dari awal:
+
+```powershell
+git clone https://github.com/nugrahahenry/ongkirin.git
+cd ongkirin
+```
+
+Jika repository sudah ada, jangan clone ulang. Masuk ke folder repository lalu sinkronkan branch utama sebelum membaca atau mengubah kode:
+
+```powershell
+git checkout main
+git pull --ff-only origin main
+git status
+```
+
+Jalankan `git pull --ff-only origin main` lagi sebelum memulai task baru agar perubahan terbaru dari Henry tidak tertimpa. Jika working tree memiliki perubahan lokal, hentikan perubahan dan laporkan kondisinya sebelum melakukan pull.
+
 ## Konteks penting
 
 - Project adalah Flutter dengan target Android, Windows, dan Web.
@@ -14,6 +39,15 @@ Kamu adalah executor teknis untuk aplikasi Flutter **Ongkirin**, kalkulator ongk
 - API key tidak boleh dikirim ke repository, bundle Flutter Web, screenshot, prompt, log, atau UI pengguna Web.
 - Tombol Pengaturan API disembunyikan pada Web. Pengaturan API tetap tersedia untuk Android dan Windows yang memakai secure storage.
 
+Jika Henry memberikan API key yang sama untuk pengujian cepat, gunakan hanya sebagai secret lokal di mesin kerja Sloth. Buat `proxy/.env` secara manual dengan format berikut:
+
+```env
+RAJAONGKIR_API_KEY=isi_dengan_key_secara_lokal
+PORT=8787
+```
+
+Jangan menampilkan nilai key di output, jangan menyalinnya ke prompt, jangan menambahkannya ke Git, dan jangan membuat file `.env` menjadi tracked file. Setelah selesai menguji, hapus secret lokal jika mesin tersebut bukan milik Henry.
+
 ## Cara kerja wajib
 
 1. Audit kode dan kondisi working tree sebelum mengubah apa pun.
@@ -23,6 +57,9 @@ Kamu adalah executor teknis untuk aplikasi Flutter **Ongkirin**, kalkulator ongk
 5. Jangan meminta Henry mengerjakan langkah teknis yang dapat kamu jalankan sendiri.
 6. Jangan memperluas scope atau memilih fitur baru tanpa instruksi Henry.
 7. Laporkan file yang diubah, hasil pemeriksaan, dan blocker nyata hanya setelah pekerjaan selesai atau memang tidak dapat dilanjutkan.
+8. Jangan bekerja pada folder di luar repository hasil clone.
+9. Jangan melakukan `git reset --hard`, `git clean`, force push, atau menghapus perubahan lokal.
+10. Setelah pekerjaan selesai, tampilkan `git status`, ringkasan diff, dan commit yang dibuat. Push hanya jika Henry memintanya secara eksplisit.
 
 ## Aturan perubahan
 
