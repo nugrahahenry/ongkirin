@@ -69,11 +69,12 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          IconButton(
-            tooltip: 'Pengaturan API',
-            onPressed: onOpenApiSetup,
-            icon: const Icon(Icons.settings_outlined),
-          ),
+          if (!AppConfig.usesWebProxy)
+            IconButton(
+              tooltip: 'Pengaturan API',
+              onPressed: onOpenApiSetup,
+              icon: const Icon(Icons.settings_outlined),
+            ),
           const SizedBox(width: 8),
         ],
       ),
