@@ -32,6 +32,8 @@ class HomeScreen extends StatelessWidget {
         apiKey: controller.apiKey ?? '',
         service: controller.service,
         title: origin ? 'Pilih kota asal' : 'Pilih kota tujuan',
+        recentLocations: origin ? const [] : controller.recentDestinations,
+        onUseCurrentLocation: origin ? controller.resolveCurrentOrigin : null,
       ),
     );
     if (result == null) return;
@@ -112,8 +114,8 @@ class HomeScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
-                onPressed: controller.origin == null &&
-                        controller.destination == null
+                onPressed:
+                    controller.origin == null && controller.destination == null
                     ? null
                     : controller.swapLocations,
                 icon: const Icon(Icons.swap_vert_rounded, size: 19),

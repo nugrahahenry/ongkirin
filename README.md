@@ -18,6 +18,8 @@ Kalkulator ongkos kirim domestik Indonesia berbasis Flutter dan RajaOngkir. Ongk
 - Loading, validasi, empty state, timeout, unauthorized, dan server error state
 - Proxy Node lokal untuk mengatasi CORS pada Flutter Web
 - API key Web disimpan di server proxy, bukan di bundle browser
+- Tombol lokasi otomatis dengan fallback pencarian manual
+- Rekomendasi tujuan terakhir yang disimpan lokal
 
 ## 🧭 Alur aplikasi
 
@@ -87,6 +89,8 @@ http://192.168.1.5:8080
 ```
 
 Jangan memakai `localhost` atau `127.0.0.1` dari HP.
+
+Browser dapat membatasi geolocation pada alamat HTTP lokal. Jika Chrome meminta HTTPS atau menolak izin lokasi, gunakan pencarian asal manual. Proxy dan kalkulator tetap dapat dipakai tanpa fitur lokasi otomatis.
 
 ## 🧪 Pemeriksaan kode
 

@@ -8,12 +8,16 @@ class LocationSearchSheet extends StatefulWidget {
   final String apiKey;
   final RajaOngkirService service;
   final String title;
+  final List<LocationReference> recentLocations;
+  final Future<LocationReference> Function()? onUseCurrentLocation;
 
   const LocationSearchSheet({
     super.key,
     required this.apiKey,
     required this.service,
     required this.title,
+    this.recentLocations = const [],
+    this.onUseCurrentLocation,
   });
 
   @override
@@ -52,6 +56,31 @@ class _LocationSearchSheetState extends State<LocationSearchSheet> {
       if (mounted) setState(() => _error = error.message);
     } on Exception {
       if (mounted) setState(() => _error = 'Pencarian gagal. Coba lagi.');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _useCurrentLocation() async {
+    final callback = widget.onUseCurrentLocation;
+    if (callback == null) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final result = await callback();
+      if (mounted) Navigator.pop(context, result);
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _error = error.message);
+    } on StateError catch (error) {
+      if (mounted) {
+        setState(() => _error = '$error'.replaceFirst('Bad state: ', ''));
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() => _error = 'Lokasi otomatis gagal. Cari secara manual.');
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -106,6 +135,67 @@ class _LocationSearchSheetState extends State<LocationSearchSheet> {
                   ),
                 ),
               ),
+              if (widget.onUseCurrentLocation != null) ...[
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _loading ? null : _useCurrentLocation,
+                      icon: _loading
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.my_location_rounded),
+                      label: Text(
+                        _loading
+                            ? 'Mendeteksi lokasi...'
+                            : 'Gunakan lokasi saya',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              if (widget.recentLocations.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Tujuan terakhir',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: widget.recentLocations
+                        .map(
+                          (location) => Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ActionChip(
+                              avatar: const Icon(
+                                Icons.history_rounded,
+                                size: 16,
+                              ),
+                              label: Text(location.name),
+                              onPressed: () => Navigator.pop(context, location),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               Expanded(
                 child: _loading

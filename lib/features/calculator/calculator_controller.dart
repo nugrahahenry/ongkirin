@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/errors/api_exception.dart';
+import '../../core/location/current_location_service.dart';
 import '../../core/storage/api_key_storage.dart';
+import '../../core/storage/location_history_storage.dart';
 import '../../data/models/location_reference.dart';
 import '../../data/models/shipping_option.dart';
 import '../../data/services/rajaongkir_service.dart';
@@ -14,13 +18,22 @@ class CalculatorController extends ChangeNotifier {
   final RajaOngkirService service;
   final FlutterSecureStorage secureStorage;
   final ApiKeyStorage apiKeyStorage;
+  final LocationHistoryStorage locationHistoryStorage;
+  final CurrentLocationService currentLocationService;
 
   CalculatorController({
     RajaOngkirService? service,
     FlutterSecureStorage? secureStorage,
+    LocationHistoryStorage? locationHistoryStorage,
+    CurrentLocationService? currentLocationService,
   }) : service = service ?? RajaOngkirService(),
        secureStorage = secureStorage ?? const FlutterSecureStorage(),
-       apiKeyStorage = createApiKeyStorage(secureStorage);
+       apiKeyStorage = createApiKeyStorage(secureStorage),
+       locationHistoryStorage =
+           locationHistoryStorage ??
+           createLocationHistoryStorage(secureStorage),
+       currentLocationService =
+           currentLocationService ?? CurrentLocationService();
 
   String? apiKey;
   LocationReference? origin;
@@ -31,6 +44,7 @@ class CalculatorController extends ChangeNotifier {
   CalculationStatus status = CalculationStatus.idle;
   String? errorMessage;
   List<ShippingOption> options = const [];
+  List<LocationReference> recentDestinations = const [];
 
   bool get hasApiKey =>
       AppConfig.usesWebProxy || (apiKey != null && apiKey!.trim().isNotEmpty);
@@ -38,6 +52,7 @@ class CalculatorController extends ChangeNotifier {
 
   Future<void> loadSavedApiKey() async {
     apiKey = await apiKeyStorage.read();
+    recentDestinations = await locationHistoryStorage.read();
     notifyListeners();
   }
 
@@ -60,8 +75,20 @@ class CalculatorController extends ChangeNotifier {
 
   void setDestination(LocationReference value) {
     destination = value;
+    recentDestinations = [
+      value,
+      ...recentDestinations.where((item) => item.id != value.id),
+    ].take(5).toList();
+    unawaited(locationHistoryStorage.write(recentDestinations));
     _clearError();
     notifyListeners();
+  }
+
+  Future<LocationReference> resolveCurrentOrigin() {
+    return currentLocationService.resolveOrigin(
+      apiKey: apiKey ?? '',
+      service: service,
+    );
   }
 
   void swapLocations() {

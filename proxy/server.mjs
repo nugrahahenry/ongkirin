@@ -43,6 +43,36 @@ const server = http.createServer(async (request, response) => {
   }
 
   const requestUrl = new URL(request.url, `http://${request.headers.host}`);
+  if (requestUrl.pathname === '/geocode/reverse') {
+    const latitude = requestUrl.searchParams.get('lat');
+    const longitude = requestUrl.searchParams.get('lon');
+    if (!latitude || !longitude) {
+      response.writeHead(400, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ message: 'Koordinat lokasi belum lengkap.' }));
+      return;
+    }
+    try {
+      const geocodeUrl = new URL('https://nominatim.openstreetmap.org/reverse');
+      geocodeUrl.searchParams.set('format', 'jsonv2');
+      geocodeUrl.searchParams.set('addressdetails', '1');
+      geocodeUrl.searchParams.set('zoom', '18');
+      geocodeUrl.searchParams.set('lat', latitude);
+      geocodeUrl.searchParams.set('lon', longitude);
+      const geocodeResponse = await fetch(geocodeUrl, {
+        headers: { 'User-Agent': 'Ongkirin/1.0 local development' },
+      });
+      const geocodeBody = await geocodeResponse.arrayBuffer();
+      response.writeHead(geocodeResponse.status, {
+        'Content-Type': geocodeResponse.headers.get('content-type') || 'application/json',
+      });
+      response.end(Buffer.from(geocodeBody));
+    } catch (error) {
+      response.writeHead(502, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ message: `Reverse geocoding gagal: ${error.message}` }));
+    }
+    return;
+  }
+
   if (!requestUrl.pathname.startsWith('/api/v1/')) {
     response.writeHead(404, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify({ message: 'Proxy endpoint tidak ditemukan.' }));
