@@ -134,7 +134,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<CourierChoice>(
-              value: controller.selectedCourier,
+              initialValue: controller.selectedCourier,
               decoration: const InputDecoration(
                 labelText: 'Kurir',
                 prefixIcon: Icon(Icons.local_shipping_outlined),
