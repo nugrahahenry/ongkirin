@@ -5,7 +5,7 @@ import '../../core/navigation/route_launcher.dart';
 import '../../data/models/shipping_option.dart';
 import '../calculator/calculator_controller.dart';
 
-enum _ResultSort { cheapest, fastest }
+enum _ResultFocus { all, cheapest, fastest }
 
 class ResultScreen extends StatefulWidget {
   final CalculatorController controller;
@@ -17,7 +17,7 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  _ResultSort _sort = _ResultSort.cheapest;
+  _ResultFocus _focus = _ResultFocus.all;
   String _courierFilter = 'Semua kurir';
 
   CalculatorController get controller => widget.controller;
@@ -29,18 +29,40 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   List<ShippingOption> get _visibleOptions {
-    final options = controller.options
+    final filteredByCourier = controller.options
         .where(
           (option) =>
               _courierFilter == 'Semua kurir' ||
               option.courierName == _courierFilter,
         )
         .toList();
+    if (filteredByCourier.isEmpty) return filteredByCourier;
+
+    final cheapest = filteredByCourier
+        .map((option) => option.cost)
+        .reduce((first, second) => first < second ? first : second);
+    final fastest = filteredByCourier
+        .map((option) => _etdScore(option.etd))
+        .reduce((first, second) => first < second ? first : second);
+    final options = switch (_focus) {
+      _ResultFocus.all => filteredByCourier,
+      _ResultFocus.cheapest =>
+        filteredByCourier.where((option) => option.cost == cheapest).toList(),
+      _ResultFocus.fastest =>
+        filteredByCourier
+            .where((option) => _etdScore(option.etd) == fastest)
+            .toList(),
+    };
     options.sort((first, second) {
-      if (_sort == _ResultSort.cheapest) {
-        return first.cost.compareTo(second.cost);
-      }
-      return _etdScore(first.etd).compareTo(_etdScore(second.etd));
+      final costOrder = first.cost.compareTo(second.cost);
+      final speedOrder = _etdScore(first.etd).compareTo(_etdScore(second.etd));
+      return _focus == _ResultFocus.fastest
+          ? speedOrder != 0
+                ? speedOrder
+                : costOrder
+          : costOrder != 0
+          ? costOrder
+          : speedOrder;
     });
     return options;
   }
@@ -183,20 +205,28 @@ class _ResultScreenState extends State<ResultScreen> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            ChoiceChip(
-              label: const Text('Termurah'),
-              avatar: const Icon(Icons.payments_outlined, size: 17),
-              selected: _sort == _ResultSort.cheapest,
+            FilterChip(
+              label: const Text('Semua hasil'),
+              avatar: const Icon(Icons.list_alt_rounded, size: 17),
+              selected: _focus == _ResultFocus.all,
               onSelected: (_) => setState(() {
-                _sort = _ResultSort.cheapest;
+                _focus = _ResultFocus.all;
               }),
             ),
-            ChoiceChip(
+            FilterChip(
+              label: const Text('Termurah'),
+              avatar: const Icon(Icons.payments_outlined, size: 17),
+              selected: _focus == _ResultFocus.cheapest,
+              onSelected: (_) => setState(() {
+                _focus = _ResultFocus.cheapest;
+              }),
+            ),
+            FilterChip(
               label: const Text('Tercepat'),
               avatar: const Icon(Icons.bolt_rounded, size: 17),
-              selected: _sort == _ResultSort.fastest,
+              selected: _focus == _ResultFocus.fastest,
               onSelected: (_) => setState(() {
-                _sort = _ResultSort.fastest;
+                _focus = _ResultFocus.fastest;
               }),
             ),
           ],
