@@ -267,27 +267,27 @@ class _ResultScreenState extends State<ResultScreen> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            FilterChip(
-              label: const Text('Semua hasil'),
-              avatar: const Icon(Icons.list_alt_rounded, size: 17),
+            _FilterPill(
+              label: 'Semua hasil',
+              icon: Icons.list_alt_rounded,
               selected: _focus == _ResultFocus.all,
-              onSelected: (_) => setState(() {
+              onTap: () => setState(() {
                 _focus = _ResultFocus.all;
               }),
             ),
-            FilterChip(
-              label: const Text('Termurah'),
-              avatar: const Icon(Icons.payments_outlined, size: 17),
+            _FilterPill(
+              label: 'Termurah',
+              icon: Icons.payments_outlined,
               selected: _focus == _ResultFocus.cheapest,
-              onSelected: (_) => setState(() {
+              onTap: () => setState(() {
                 _focus = _ResultFocus.cheapest;
               }),
             ),
-            FilterChip(
-              label: const Text('Tercepat'),
-              avatar: const Icon(Icons.bolt_rounded, size: 17),
+            _FilterPill(
+              label: 'Tercepat',
+              icon: Icons.bolt_rounded,
               selected: _focus == _ResultFocus.fastest,
-              onSelected: (_) => setState(() {
+              onTap: () => setState(() {
                 _focus = _ResultFocus.fastest;
               }),
             ),
@@ -500,6 +500,70 @@ class _Badge extends StatelessWidget {
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: accent ? const Color(0xFF115E59) : const Color(0xFF92400E),
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterPill extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _FilterPill({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = selected
+        ? const Color(0xFF0F766E)
+        : const Color(0xFF475569);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFFD9F6F0) : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected
+                  ? const Color(0xFF0F766E)
+                  : const Color(0xFFCBD5E1),
+              width: selected ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: foreground),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: foreground,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                ),
+              ),
+              if (selected) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.check_rounded,
+                  size: 17,
+                  color: Color(0xFF0F766E),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );

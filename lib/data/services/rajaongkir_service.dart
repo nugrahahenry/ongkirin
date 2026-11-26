@@ -193,8 +193,23 @@ class RajaOngkirService {
 
   Map<String, dynamic> _decode(http.Response response) {
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      String? responseMessage;
+      try {
+        final body = jsonDecode(response.body);
+        if (body is Map) {
+          final meta = body['meta'];
+          responseMessage = '${body['message'] ?? ''}'.trim();
+          if (responseMessage.isEmpty && meta is Map) {
+            responseMessage = '${meta['message'] ?? ''}'.trim();
+          }
+        }
+      } on FormatException {
+        responseMessage = null;
+      }
       throw ApiException(
-        _messageForStatus(response.statusCode),
+        responseMessage?.isNotEmpty == true
+            ? responseMessage!
+            : _messageForStatus(response.statusCode),
         statusCode: response.statusCode,
       );
     }
@@ -235,8 +250,10 @@ class RajaOngkirService {
         return 'Endpoint RajaOngkir tidak ditemukan.';
       case 422:
         return 'Kurir atau parameter pengiriman tidak valid.';
+      case 502:
+        return 'Proxy tidak bisa menghubungi RajaOngkir. Periksa terminal proxy dan koneksi internet.';
       default:
-        return 'Layanan RajaOngkir sedang bermasalah. Coba lagi.';
+        return 'Layanan RajaOngkir sedang bermasalah (HTTP $statusCode). Coba lagi.';
     }
   }
 }

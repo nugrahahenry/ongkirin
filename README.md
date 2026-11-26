@@ -7,6 +7,27 @@ Kalkulator ongkos kirim domestik Indonesia berbasis Flutter dan RajaOngkir. Ongk
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Web-0F766E)
 ![Status](https://img.shields.io/badge/status-active%20development-F59E0B)
 
+> 📦 **Ongkirin** membantu membandingkan ongkir, waktu kirim, kurir, dan gambaran rute dalam satu layar yang nyaman dipakai dari HP.
+
+## ✨ Pengalaman utama
+
+| Langkah | Yang dilakukan | Hasil di layar |
+| --- | --- | --- |
+| 📍 Lokasi | Cari asal dan tujuan atau gunakan lokasi saat ini | Ringkasan rute yang mudah dibaca |
+| ⚖️ Paket | Masukkan berat atau gunakan tombol tambah cepat | Berat otomatis tersinkron dengan form |
+| 🚚 Kurir | Pilih satu kurir atau bandingkan semua | Layanan tersedia dikumpulkan dalam satu hasil |
+| 🧭 Rute | Buka pratinjau Leaflet atau Google Maps | Garis rute, jarak, dan estimasi perjalanan |
+| 💡 Pilihan | Gunakan filter semua, termurah, atau tercepat | Kartu hasil diberi konteks yang jelas |
+
+```mermaid
+flowchart LR
+    A[📍 Asal dan tujuan] --> B[⚖️ Berat paket]
+    B --> C[🚚 Pilih kurir]
+    C --> D[💰 Hitung ongkir]
+    D --> E[📊 Bandingkan hasil]
+    E --> F[🧭 Lihat rute]
+```
+
 ## ✨ Fitur
 
 - Pemilihan asal dan tujuan melalui pencarian lokasi RajaOngkir
@@ -48,6 +69,22 @@ sequenceDiagram
     API-->>Proxy: Response tarif
     Proxy-->>Flutter: Response dengan CORS lokal
     Flutter-->>HP: Tampilkan hasil
+```
+
+### Jalur data rute
+
+```mermaid
+sequenceDiagram
+    participant UI as Flutter Web
+    participant Proxy as Proxy lokal :8787
+    participant Geo as Nominatim
+    participant Route as OSRM
+    UI->>Proxy: Minta titik asal dan tujuan
+    Proxy->>Geo: Cari koordinat lokasi
+    Geo-->>Proxy: Koordinat dan label
+    Proxy->>Route: Hitung rute mobil
+    Route-->>Proxy: Geometri, jarak, durasi
+    Proxy-->>UI: Data untuk Leaflet
 ```
 
 ## 🚀 Menjalankan secara lokal
@@ -116,6 +153,10 @@ Browser dapat membatasi geolocation pada alamat HTTP lokal. Jika Chrome meminta 
 ### Pratinjau rute tanpa API key
 
 Halaman hasil memakai Leaflet untuk tampilan peta, OpenStreetMap untuk tile, Nominatim untuk mencari titik lokasi, dan OSRM untuk menghitung rute mobil. Semua layanan ini dipanggil melalui proxy lokal dan tidak membutuhkan Google Maps API key. Peta menyertakan atribusi OpenStreetMap. Tombol `Buka rute di Google Maps` tetap tersedia untuk navigasi lanjutan.
+
+### Membaca status error API
+
+Pesan `Proxy tidak bisa menghubungi RajaOngkir` menunjuk ke proxy atau koneksi internet lokal. Pesan `API key tidak valid` menunjuk ke kredensial RajaOngkir. Pesan `Kurir atau parameter pengiriman tidak valid` biasanya muncul saat endpoint menolak kombinasi kota, berat, atau kode kurir.
 
 ## 🧪 Pemeriksaan kode
 
