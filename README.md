@@ -1,13 +1,13 @@
-# Ongkirin 📦
+# 📦 Ongkirin
 
-Kalkulator ongkos kirim domestik Indonesia berbasis Flutter dan RajaOngkir. Ongkirin membantu pengguna memilih lokasi, memasukkan berat paket, membandingkan kurir, lalu melihat estimasi biaya dan waktu pengiriman dari satu alur yang ringkas.
+Kalkulator ongkos kirim domestik Indonesia berbasis Flutter, RajaOngkir, Leaflet, dan OpenStreetMap. Ongkirin membantu pengguna memilih lokasi, memasukkan berat paket, membandingkan kurir, dan melihat gambaran rute dalam satu alur yang ringkas.
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Web-0F766E)
 ![Status](https://img.shields.io/badge/status-active%20development-F59E0B)
 
-> 📦 **Ongkirin** membantu membandingkan ongkir, waktu kirim, kurir, dan gambaran rute dalam satu layar yang nyaman dipakai dari HP.
+> 🚚 **Cek cepat. Bandingkan jelas. Pilih layanan yang paling masuk akal.**
 
 ## ✨ Pengalaman utama
 
@@ -17,7 +17,7 @@ Kalkulator ongkos kirim domestik Indonesia berbasis Flutter dan RajaOngkir. Ongk
 | ⚖️ Paket | Masukkan berat atau gunakan tombol tambah cepat | Berat otomatis tersinkron dengan form |
 | 🚚 Kurir | Pilih satu kurir atau bandingkan semua | Layanan tersedia dikumpulkan dalam satu hasil |
 | 🧭 Rute | Buka pratinjau Leaflet atau Google Maps | Garis rute, jarak, dan estimasi perjalanan |
-| 💡 Pilihan | Gunakan filter semua, termurah, atau tercepat | Kartu hasil diberi konteks yang jelas |
+| 💡 Pilihan | Gunakan filter semua, termurah, atau tercepat | Kartu hasil mengikuti konteks filter aktif |
 
 ```mermaid
 flowchart LR
@@ -28,34 +28,23 @@ flowchart LR
     E --> F[🧭 Lihat rute]
 ```
 
-## ✨ Fitur
+## 🧩 Fitur
 
-- Pemilihan asal dan tujuan melalui pencarian lokasi RajaOngkir
+- Pencarian asal dan tujuan melalui data RajaOngkir
+- Pemakaian lokasi saat ini sebagai saran asal dengan fallback manual
 - Tombol tukar asal dan tujuan
 - Tombol tambah berat `+250 g`, `+500 g`, `+1 kg`, dan `+2 kg`
-- Pilihan kurir dan perhitungan estimasi biaya
-- Ringkasan pengiriman yang berubah mengikuti input
-- Penanda opsi termurah
-- Loading, validasi, empty state, timeout, unauthorized, dan server error state
+- Pilihan kurir tunggal atau semua kurir yang tersedia
+- Filter hasil `Semua hasil`, `Termurah`, dan `Tercepat`
+- Badge hasil yang mengikuti filter aktif
+- Rekomendasi tujuan terakhir yang disimpan secara lokal
+- Pratinjau rute Leaflet dengan OpenStreetMap dan OSRM
+- Tombol membuka rute lanjutan di Google Maps
+- Loading, validasi, empty state, timeout, unauthorized, proxy error, dan server error state
 - Proxy Node lokal untuk mengatasi CORS pada Flutter Web
-- API key Web disimpan di server proxy, bukan di bundle browser
-- Tombol lokasi otomatis dengan fallback pencarian manual
-- Rekomendasi tujuan terakhir yang disimpan lokal
-- Pratinjau rute Leaflet dan OpenStreetMap di halaman hasil
+- API key RajaOngkir hanya dibaca dari server proxy
 
-## 🛣 Alur aplikasi
-
-```mermaid
-flowchart LR
-    A[📱 Flutter Web atau Mobile] --> B[🧾 Input pengiriman]
-    B --> C[🔎 Pencarian lokasi]
-    B --> D[🚚 Hitung ongkir]
-    C --> E[RajaOngkir API]
-    D --> E
-    E --> F[✨ Hasil dan opsi termurah]
-```
-
-## ⚙ Arsitektur Web
+## 🏗️ Arsitektur Web
 
 ```mermaid
 sequenceDiagram
@@ -89,9 +78,9 @@ sequenceDiagram
 
 ## 🚀 Menjalankan secara lokal
 
-### 1. Siapkan API key di proxy
+### 1. Siapkan API key RajaOngkir
 
-Buat file `proxy/.env` secara lokal. File ini tidak boleh di-commit.
+Buat file `proxy/.env` secara lokal. File ini sudah masuk `.gitignore`.
 
 ```env
 RAJAONGKIR_API_KEY=isi_api_key_rajaongkir
@@ -105,42 +94,21 @@ cd proxy
 node server.mjs
 ```
 
-### 3. Preview Web cepat
+### 3. Jalankan preview Web cepat
 
-Buka terminal kedua dari root project. Build release pertama membutuhkan waktu, tetapi halaman berikutnya jauh lebih cepat dibuka.
+Buka terminal kedua dari root project.
 
 ```powershell
 .\tool\serve-web-fast.ps1
 ```
 
-Setelah tidak ada perubahan pada kode Flutter, jalankan server tanpa build ulang:
+Setelah tidak ada perubahan kode Flutter, gunakan cache build.
 
 ```powershell
 .\tool\serve-web-fast.ps1 -SkipBuild
 ```
 
-### Debug Web dengan hot reload
-
-Gunakan mode ini jika sedang mengerjakan perubahan kecil dan membutuhkan hot reload.
-
-```powershell
-flutter pub get
-flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
-```
-
-Proxy tetap harus berjalan di terminal lain:
-
-```powershell
-node proxy\server.mjs
-```
-
-Untuk menguji dari HP, komputer dan HP harus tersambung ke Wi-Fi yang sama. Buka alamat berikut di Chrome HP dengan IP komputer.
-
-```text
-http://IP_KOMPUTER:8080
-```
-
-Contoh:
+Untuk menguji dari HP, komputer dan HP harus tersambung ke Wi-Fi yang sama. Buka alamat berikut di Chrome HP.
 
 ```text
 http://192.168.1.5:8080
@@ -148,15 +116,31 @@ http://192.168.1.5:8080
 
 Jangan memakai `localhost` atau `127.0.0.1` dari HP.
 
-Browser dapat membatasi geolocation pada alamat HTTP lokal. Jika Chrome meminta HTTPS atau menolak izin lokasi, gunakan pencarian asal manual. Proxy dan kalkulator tetap dapat dipakai tanpa fitur lokasi otomatis.
+### Debug Web dengan hot reload
 
-### Pratinjau rute tanpa API key
+```powershell
+flutter pub get
+flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
+```
 
-Halaman hasil memakai Leaflet untuk tampilan peta, OpenStreetMap untuk tile, Nominatim untuk mencari titik lokasi, dan OSRM untuk menghitung rute mobil. Semua layanan ini dipanggil melalui proxy lokal dan tidak membutuhkan Google Maps API key. Peta menyertakan atribusi OpenStreetMap. Tombol `Buka rute di Google Maps` tetap tersedia untuk navigasi lanjutan.
+Proxy tetap harus berjalan di terminal lain.
 
-### Membaca status error API
+```powershell
+node proxy\server.mjs
+```
 
-Pesan `Proxy tidak bisa menghubungi RajaOngkir` menunjuk ke proxy atau koneksi internet lokal. Pesan `API key tidak valid` menunjuk ke kredensial RajaOngkir. Pesan `Kurir atau parameter pengiriman tidak valid` biasanya muncul saat endpoint menolak kombinasi kota, berat, atau kode kurir.
+## 🗺️ Pratinjau rute tanpa API key
+
+Halaman hasil memakai Leaflet untuk tampilan peta, OpenStreetMap untuk tile, Nominatim untuk mencari titik lokasi, dan OSRM untuk menghitung rute mobil. Layanan tersebut dipanggil melalui proxy lokal dan tidak membutuhkan Google Maps API key. Peta menyertakan atribusi OpenStreetMap. Tombol `Buka rute di Google Maps` tetap tersedia untuk navigasi lanjutan.
+
+## 🧯 Membaca status error
+
+| Pesan | Arti | Langkah cepat |
+| --- | --- | --- |
+| `Proxy tidak bisa menghubungi RajaOngkir` | Proxy atau koneksi internet bermasalah | Pastikan terminal proxy aktif |
+| `API key tidak valid` | Kredensial RajaOngkir ditolak | Periksa `proxy/.env` |
+| `Kurir atau parameter pengiriman tidak valid` | Kombinasi kota, berat, atau kurir ditolak | Pilih kurir spesifik atau cek input |
+| `Layanan RajaOngkir sedang bermasalah (HTTP ...)` | Server upstream mengembalikan error | Coba lagi setelah beberapa saat |
 
 ## 🧪 Pemeriksaan kode
 
@@ -172,18 +156,16 @@ Sloth dapat menjalankan pemeriksaan yang sama melalui:
 .\tool\check.ps1
 ```
 
-Jika `flutter test` perlu mengunduh package dan jaringan sedang bermasalah, jalankan ulang setelah koneksi ke `pub.dev` tersedia.
-
-## 🔒 Keamanan API key
+## 🔐 Keamanan API key
 
 - API key Web hanya dibaca dari `proxy/.env`.
 - `proxy/.env` sudah diabaikan oleh Git.
 - Jangan menaruh API key di `lib/`, `web/`, README, screenshot, log, atau prompt.
-- Jika key pernah terlihat di screenshot atau chat, revoke dan buat key baru.
+- Jika key pernah terlihat di screenshot atau chat, revoke lalu buat key baru.
 
-## 🛠 Status pengembangan
+## 📌 Status pengembangan
 
-Ongkirin sedang dikembangkan bertahap dengan fokus pada pengalaman mobile, koneksi Web melalui proxy, lokasi otomatis, riwayat tujuan, dan rekomendasi tujuan yang memiliki dasar data yang jelas.
+Ongkirin sedang dikembangkan dengan fokus pada pengalaman mobile, koneksi Web melalui proxy, pencarian lokasi, pratinjau rute, perbandingan kurir, dan filter keputusan yang mudah dipahami.
 
 ## 📄 Lisensi dan kontribusi
 
