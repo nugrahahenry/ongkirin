@@ -48,6 +48,75 @@ class RajaOngkirService {
     required int weightGrams,
     required String courier,
   }) async {
+    if (courier == AppConfig.allCouriers) {
+      return _calculateForAllCouriers(
+        apiKey: apiKey,
+        originId: originId,
+        destinationId: destinationId,
+        weightGrams: weightGrams,
+      );
+    }
+    return _calculateForCourier(
+      apiKey: apiKey,
+      originId: originId,
+      destinationId: destinationId,
+      weightGrams: weightGrams,
+      courier: courier,
+    );
+  }
+
+  Future<List<ShippingOption>> _calculateForAllCouriers({
+    required String apiKey,
+    required int originId,
+    required int destinationId,
+    required int weightGrams,
+  }) async {
+    final results = await Future.wait(
+      AppConfig.supportedCourierCodes.map(
+        (courier) => _calculateForCourierSafely(
+          apiKey: apiKey,
+          originId: originId,
+          destinationId: destinationId,
+          weightGrams: weightGrams,
+          courier: courier,
+        ),
+      ),
+    );
+    return results.expand((options) => options).toList();
+  }
+
+  Future<List<ShippingOption>> _calculateForCourierSafely({
+    required String apiKey,
+    required int originId,
+    required int destinationId,
+    required int weightGrams,
+    required String courier,
+  }) async {
+    try {
+      return await _calculateForCourier(
+        apiKey: apiKey,
+        originId: originId,
+        destinationId: destinationId,
+        weightGrams: weightGrams,
+        courier: courier,
+      );
+    } on ApiException catch (error) {
+      if (error.statusCode == 400 ||
+          error.statusCode == 404 ||
+          error.statusCode == 422) {
+        return const [];
+      }
+      rethrow;
+    }
+  }
+
+  Future<List<ShippingOption>> _calculateForCourier({
+    required String apiKey,
+    required int originId,
+    required int destinationId,
+    required int weightGrams,
+    required String courier,
+  }) async {
     final uri = Uri.parse('$baseUrl/calculate/domestic-cost');
     final response = await _runRequest(
       () => client.post(

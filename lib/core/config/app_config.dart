@@ -17,7 +17,23 @@ class AppConfig {
   }
 
   static const allCouriers =
-      'jne:jnt:sicepat:ide:sap:ninja:tiki:lion:anteraja:pos:ncs:rex:rpx:sentral:star:wahana:dse';
+      'jne:sicepat:ide:sap:jnt:ninja:tiki:lion:pos:sentral:rex:wahana:spx';
+
+  static const supportedCourierCodes = <String>[
+    'jne',
+    'sicepat',
+    'ide',
+    'sap',
+    'jnt',
+    'ninja',
+    'tiki',
+    'lion',
+    'pos',
+    'sentral',
+    'rex',
+    'wahana',
+    'spx',
+  ];
 
   static const courierOptions = <CourierChoice>[
     CourierChoice(label: 'Semua kurir', code: allCouriers),
