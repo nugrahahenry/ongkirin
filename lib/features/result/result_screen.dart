@@ -115,13 +115,16 @@ class _ResultScreenState extends State<ResultScreen> {
               const SizedBox(height: 16),
               if (visibleOptions.isEmpty)
                 _buildFilteredEmpty()
-              else
+              else ...[
+                _buildResultCount(visibleOptions.length),
+                const SizedBox(height: 10),
                 ...visibleOptions.map(
                   (option) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _buildOptionCard(option, formatter),
                   ),
                 ),
+              ],
             ],
             const SizedBox(height: 12),
             OutlinedButton.icon(
@@ -466,11 +469,48 @@ class _ResultScreenState extends State<ResultScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: const Text(
-        'Tidak ada layanan yang cocok dengan filter ini.',
-        textAlign: TextAlign.center,
-        style: TextStyle(color: Color(0xFF64748B)),
+      child: Column(
+        children: [
+          const Text(
+            'Tidak ada layanan yang cocok dengan filter ini.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Color(0xFF64748B)),
+          ),
+          const SizedBox(height: 12),
+          TextButton.icon(
+            onPressed: () => setState(() {
+              _focus = _ResultFocus.all;
+              _courierFilter = 'Semua kurir';
+            }),
+            icon: const Icon(Icons.restart_alt_rounded),
+            label: const Text('Reset filter'),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildResultCount(int count) {
+    final courierText = _courierFilter == 'Semua kurir'
+        ? 'semua kurir'
+        : _courierFilter;
+    return Row(
+      children: [
+        const Icon(
+          Icons.check_circle_outline_rounded,
+          size: 17,
+          color: Color(0xFF0F766E),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '$count layanan · $courierText',
+          style: const TextStyle(
+            color: Color(0xFF475569),
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
     );
   }
 
