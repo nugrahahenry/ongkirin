@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/config/app_config.dart';
 import '../../core/maps/route_map_preview.dart';
 import '../../core/navigation/route_launcher.dart';
 import '../../data/models/shipping_option.dart';
@@ -172,15 +171,15 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Lihat rute kendaraan dan estimasi perjalanan di Google Maps. Estimasi paket tetap mengikuti RajaOngkir.',
+            'Lihat gambaran rute kendaraan dan estimasi perjalanan. Estimasi paket tetap mengikuti RajaOngkir.',
             style: TextStyle(color: Color(0xFF334155), height: 1.4),
           ),
-          if (canOpenRoute && AppConfig.hasGoogleMapsEmbedKey) ...[
+          if (canOpenRoute) ...[
             const SizedBox(height: 12),
             RouteMapPreview(origin: origin, destination: destination),
             const SizedBox(height: 8),
             const Text(
-              'Mode mobil ditampilkan sebagai pratinjau. Untuk pilihan kendaraan lain, buka Google Maps.',
+              'Rute mobil memakai Leaflet dan OpenStreetMap. Estimasi ongkir tetap mengikuti RajaOngkir.',
               style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
             ),
           ] else ...[
@@ -220,7 +219,7 @@ class _ResultScreenState extends State<ResultScreen> {
           SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Peta tertanam aktif jika build dijalankan dengan GOOGLE_MAPS_EMBED_KEY. Tanpa key, tombol di bawah tetap membuka rute Google Maps.',
+              'Peta akan muncul setelah asal dan tujuan dipilih. Tombol di bawah tetap membuka rute Google Maps.',
               style: TextStyle(color: Color(0xFF334155), fontSize: 12, height: 1.35),
             ),
           ),

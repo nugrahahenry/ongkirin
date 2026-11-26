@@ -17,6 +17,7 @@ if (fs.existsSync(envPath)) {
 
 const port = Number(process.env.PORT || 8787);
 const upstreamOrigin = 'https://rajaongkir.komerce.id';
+const geocodeCache = new Map();
 
 function addCorsHeaders(response) {
   response.setHeader('Access-Control-Allow-Origin', '*');
@@ -31,6 +32,45 @@ function readBody(request) {
     request.on('end', () => resolve(Buffer.concat(chunks)));
     request.on('error', reject);
   });
+}
+
+async function fetchJson(url, options = {}) {
+  const upstreamResponse = await fetch(url, options);
+  const body = await upstreamResponse.text();
+  let payload;
+  try {
+    payload = JSON.parse(body);
+  } catch (_) {
+    throw new Error(`Response peta tidak valid (${upstreamResponse.status}).`);
+  }
+  if (!upstreamResponse.ok) {
+    throw new Error(payload.message || `Layanan peta menolak request (${upstreamResponse.status}).`);
+  }
+  return payload;
+}
+
+async function geocodePlace(query) {
+  const cached = geocodeCache.get(query);
+  if (cached) return cached;
+  const geocodeUrl = new URL('https://nominatim.openstreetmap.org/search');
+  geocodeUrl.searchParams.set('format', 'jsonv2');
+  geocodeUrl.searchParams.set('limit', '1');
+  geocodeUrl.searchParams.set('countrycodes', 'id');
+  geocodeUrl.searchParams.set('q', `${query}, Indonesia`);
+  const results = await fetchJson(geocodeUrl, {
+    headers: { 'User-Agent': 'Ongkirin/1.0 local development' },
+  });
+  const place = Array.isArray(results) ? results[0] : null;
+  if (!place?.lat || !place?.lon) {
+    throw new Error(`Lokasi tidak ditemukan: ${query}`);
+  }
+  const placeResult = {
+    label: place.display_name || query,
+    latitude: Number(place.lat),
+    longitude: Number(place.lon),
+  };
+  geocodeCache.set(query, placeResult);
+  return placeResult;
 }
 
 const server = http.createServer(async (request, response) => {
@@ -69,6 +109,47 @@ const server = http.createServer(async (request, response) => {
     } catch (error) {
       response.writeHead(502, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify({ message: `Reverse geocoding gagal: ${error.message}` }));
+    }
+    return;
+  }
+
+  if (requestUrl.pathname === '/maps/route') {
+    const originQuery = requestUrl.searchParams.get('origin')?.trim();
+    const destinationQuery = requestUrl.searchParams.get('destination')?.trim();
+    if (!originQuery || !destinationQuery) {
+      response.writeHead(400, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ message: 'Asal dan tujuan rute belum lengkap.' }));
+      return;
+    }
+    try {
+      const origin = await geocodePlace(originQuery);
+      const destination = await geocodePlace(destinationQuery);
+      const routeUrl = new URL(
+        `https://router.project-osrm.org/route/v1/driving/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}`,
+      );
+      routeUrl.searchParams.set('overview', 'full');
+      routeUrl.searchParams.set('geometries', 'geojson');
+      routeUrl.searchParams.set('steps', 'false');
+      const routePayload = await fetchJson(routeUrl, {
+        headers: { 'User-Agent': 'Ongkirin/1.0 local development' },
+      });
+      const route = routePayload.routes?.[0];
+      if (!route?.geometry) throw new Error('Rute jalan tidak ditemukan.');
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.end(
+        JSON.stringify({
+          origin,
+          destination,
+          route: {
+            distanceMeters: route.distance,
+            durationSeconds: route.duration,
+            geometry: route.geometry,
+          },
+        }),
+      );
+    } catch (error) {
+      response.writeHead(502, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ message: `Rute peta gagal: ${error.message}` }));
     }
     return;
   }
