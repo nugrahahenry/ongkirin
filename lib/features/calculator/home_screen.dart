@@ -390,21 +390,45 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFFECACA)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              controller.errorMessage!,
-              style: const TextStyle(color: Color(0xFF991B1B), height: 1.35),
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  controller.errorMessage!,
+                  style: const TextStyle(
+                    color: Color(0xFF991B1B),
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
           ),
-          if (isKeyError)
-            IconButton(
-              onPressed: onOpenApiSetup,
-              icon: const Icon(Icons.settings_outlined),
-            ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: controller.isLoading
+                    ? null
+                    : () => _calculate(context),
+                icon: const Icon(Icons.refresh_rounded, size: 17),
+                label: const Text('Coba lagi'),
+              ),
+              if (isKeyError)
+                OutlinedButton.icon(
+                  onPressed: onOpenApiSetup,
+                  icon: const Icon(Icons.settings_outlined, size: 17),
+                  label: const Text('Atur API'),
+                ),
+            ],
+          ),
         ],
       ),
     );
