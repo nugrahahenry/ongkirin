@@ -23,28 +23,50 @@ class _ResultScreenState extends State<ResultScreen> {
 
   CalculatorController get controller => widget.controller;
 
+  String get _focusDescription => switch (_focus) {
+    _ResultFocus.all =>
+      'Semua layanan ditampilkan. Badge menandai pilihan terbaik.',
+    _ResultFocus.cheapest => 'Menampilkan layanan dengan biaya paling rendah.',
+    _ResultFocus.fastest =>
+      'Menampilkan layanan dengan estimasi waktu paling singkat.',
+  };
+
   List<String> get _courierFilters {
     final names = controller.options.map((option) => option.courierName).toSet()
       ..removeWhere((name) => name.trim().isEmpty);
     return ['Semua kurir', ...names.toList()..sort()];
   }
 
-  List<ShippingOption> get _visibleOptions {
-    final filteredByCourier = controller.options
-        .where(
-          (option) =>
-              _courierFilter == 'Semua kurir' ||
-              option.courierName == _courierFilter,
-        )
-        .toList();
-    if (filteredByCourier.isEmpty) return filteredByCourier;
+  List<ShippingOption> get _courierOptions => controller.options
+      .where(
+        (option) =>
+            _courierFilter == 'Semua kurir' ||
+            option.courierName == _courierFilter,
+      )
+      .toList();
 
-    final cheapest = filteredByCourier
+  int? get _cheapestCost {
+    final options = _courierOptions;
+    if (options.isEmpty) return null;
+    return options
         .map((option) => option.cost)
         .reduce((first, second) => first < second ? first : second);
-    final fastest = filteredByCourier
+  }
+
+  int? get _fastestScore {
+    final options = _courierOptions;
+    if (options.isEmpty) return null;
+    return options
         .map((option) => _etdScore(option.etd))
         .reduce((first, second) => first < second ? first : second);
+  }
+
+  List<ShippingOption> get _visibleOptions {
+    final filteredByCourier = _courierOptions;
+    if (filteredByCourier.isEmpty) return filteredByCourier;
+
+    final cheapest = _cheapestCost!;
+    final fastest = _fastestScore!;
     final options = switch (_focus) {
       _ResultFocus.all => filteredByCourier,
       _ResultFocus.cheapest =>
@@ -220,7 +242,11 @@ class _ResultScreenState extends State<ResultScreen> {
           Expanded(
             child: Text(
               'Peta akan muncul setelah asal dan tujuan dipilih. Tombol di bawah tetap membuka rute Google Maps.',
-              style: TextStyle(color: Color(0xFF334155), fontSize: 12, height: 1.35),
+              style: TextStyle(
+                color: Color(0xFF334155),
+                fontSize: 12,
+                height: 1.35,
+              ),
             ),
           ),
         ],
@@ -268,6 +294,11 @@ class _ResultScreenState extends State<ResultScreen> {
           ],
         ),
         const SizedBox(height: 10),
+        Text(
+          _focusDescription,
+          style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
+        ),
+        const SizedBox(height: 12),
         DropdownButtonFormField<String>(
           initialValue: _courierFilter,
           decoration: const InputDecoration(
@@ -289,21 +320,25 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Widget _buildOptionCard(ShippingOption option, NumberFormat formatter) {
-    final highlighted = option.isCheapest;
-    final fastest =
-        _etdScore(option.etd) ==
-        _visibleOptions
-            .map((item) => _etdScore(item.etd))
-            .fold<int>(999, (best, value) => value < best ? value : best);
+    final isCheapest = option.cost == _cheapestCost;
+    final isFastest = _etdScore(option.etd) == _fastestScore;
+    final labels = _labelsFor(isCheapest: isCheapest, isFastest: isFastest);
+    final fastestFocus = _focus == _ResultFocus.fastest;
+    final highlighted = fastestFocus || isCheapest;
+    final highlightColor = fastestFocus
+        ? const Color(0xFF0F766E)
+        : const Color(0xFFF59E0B);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: highlighted ? const Color(0xFFFFFBEB) : Colors.white,
+        color: fastestFocus
+            ? const Color(0xFFF0FDFA)
+            : highlighted
+            ? const Color(0xFFFFFBEB)
+            : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: highlighted
-              ? const Color(0xFFF59E0B)
-              : const Color(0xFFE2E8F0),
+          color: highlighted ? highlightColor : const Color(0xFFE2E8F0),
           width: highlighted ? 1.5 : 1,
         ),
       ),
@@ -311,12 +346,16 @@ class _ResultScreenState extends State<ResultScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            backgroundColor: highlighted
+            backgroundColor: fastestFocus
+                ? const Color(0xFFCCFBF1)
+                : highlighted
                 ? const Color(0xFFFFEDD5)
                 : const Color(0xFFE6FFFB),
             child: Icon(
               Icons.local_shipping_rounded,
-              color: highlighted
+              color: fastestFocus
+                  ? const Color(0xFF0F766E)
+                  : highlighted
                   ? const Color(0xFFB45309)
                   : const Color(0xFF0F766E),
             ),
@@ -340,10 +379,14 @@ class _ResultScreenState extends State<ResultScreen> {
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
-                  children: [
-                    if (highlighted) const _Badge(label: 'Termurah'),
-                    if (fastest) const _Badge(label: 'Tercepat'),
-                  ],
+                  children: labels
+                      .map(
+                        (label) => _Badge(
+                          label: label,
+                          accent: label.toLowerCase().contains('cepat'),
+                        ),
+                      )
+                      .toList(),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -374,6 +417,18 @@ class _ResultScreenState extends State<ResultScreen> {
         ],
       ),
     );
+  }
+
+  List<String> _labelsFor({required bool isCheapest, required bool isFastest}) {
+    switch (_focus) {
+      case _ResultFocus.cheapest:
+        return const ['Pilihan termurah'];
+      case _ResultFocus.fastest:
+        return const ['Pilihan tercepat'];
+      case _ResultFocus.all:
+        if (isCheapest && isFastest) return const ['Termurah & tercepat'];
+        return [if (isCheapest) 'Termurah', if (isFastest) 'Tercepat'];
+    }
   }
 
   Widget _buildEmpty(BuildContext context) {
@@ -427,23 +482,24 @@ class _ResultScreenState extends State<ResultScreen> {
 
 class _Badge extends StatelessWidget {
   final String label;
+  final bool accent;
 
-  const _Badge({required this.label});
+  const _Badge({required this.label, this.accent = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF3C4),
+        color: accent ? const Color(0xFFCCFBF1) : const Color(0xFFFFF3C4),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w800,
-          color: Color(0xFF92400E),
+          color: accent ? const Color(0xFF115E59) : const Color(0xFF92400E),
         ),
       ),
     );

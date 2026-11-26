@@ -60,7 +60,8 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
 <style>
 html, body, #map { width: 100%; height: 100%; margin: 0; }
 body { overflow: hidden; font-family: Arial, sans-serif; }
-#status { position: absolute; z-index: 1000; top: 12px; left: 12px; right: 12px; padding: 9px 11px; border-radius: 9px; background: rgba(255,255,255,.94); color: #334155; font-size: 12px; box-shadow: 0 2px 8px rgba(15,23,42,.18); }
+#status { position: absolute; z-index: 1000; top: 12px; left: 58px; right: 12px; padding: 9px 11px; border-radius: 9px; background: rgba(255,255,255,.94); color: #334155; font-size: 12px; box-shadow: 0 2px 8px rgba(15,23,42,.18); pointer-events: none; }
+.leaflet-control-zoom { margin-top: 8px !important; margin-left: 8px !important; }
 </style>
 </head>
 <body>
