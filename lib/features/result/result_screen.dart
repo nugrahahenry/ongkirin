@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/config/app_config.dart';
+import '../../core/maps/route_map_preview.dart';
 import '../../core/navigation/route_launcher.dart';
 import '../../data/models/shipping_option.dart';
 import '../calculator/calculator_controller.dart';
@@ -173,6 +175,18 @@ class _ResultScreenState extends State<ResultScreen> {
             'Lihat rute kendaraan dan estimasi perjalanan di Google Maps. Estimasi paket tetap mengikuti RajaOngkir.',
             style: TextStyle(color: Color(0xFF334155), height: 1.4),
           ),
+          if (canOpenRoute && AppConfig.hasGoogleMapsEmbedKey) ...[
+            const SizedBox(height: 12),
+            RouteMapPreview(origin: origin, destination: destination),
+            const SizedBox(height: 8),
+            const Text(
+              'Mode mobil ditampilkan sebagai pratinjau. Untuk pilihan kendaraan lain, buka Google Maps.',
+              style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+            ),
+          ] else ...[
+            const SizedBox(height: 12),
+            _buildMapSetupHint(),
+          ],
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -185,6 +199,29 @@ class _ResultScreenState extends State<ResultScreen> {
                   : null,
               icon: const Icon(Icons.open_in_new_rounded),
               label: const Text('Buka rute di Google Maps'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMapSetupHint() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(170),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline_rounded, size: 19, color: Color(0xFF1D4ED8)),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Peta tertanam aktif jika build dijalankan dengan GOOGLE_MAPS_EMBED_KEY. Tanpa key, tombol di bawah tetap membuka rute Google Maps.',
+              style: TextStyle(color: Color(0xFF334155), fontSize: 12, height: 1.35),
             ),
           ),
         ],

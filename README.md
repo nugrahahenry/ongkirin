@@ -20,6 +20,7 @@ Kalkulator ongkos kirim domestik Indonesia berbasis Flutter dan RajaOngkir. Ongk
 - API key Web disimpan di server proxy, bukan di bundle browser
 - Tombol lokasi otomatis dengan fallback pencarian manual
 - Rekomendasi tujuan terakhir yang disimpan lokal
+- Pratinjau rute Google Maps opsional di halaman hasil
 
 ## 🛣 Alur aplikasi
 
@@ -111,6 +112,16 @@ http://192.168.1.5:8080
 Jangan memakai `localhost` atau `127.0.0.1` dari HP.
 
 Browser dapat membatasi geolocation pada alamat HTTP lokal. Jika Chrome meminta HTTPS atau menolak izin lokasi, gunakan pencarian asal manual. Proxy dan kalkulator tetap dapat dipakai tanpa fitur lokasi otomatis.
+
+### Pratinjau Google Maps di dalam aplikasi
+
+Tombol `Buka rute di Google Maps` selalu tersedia tanpa konfigurasi tambahan. Jika ingin menampilkan peta dan estimasi rute mobil langsung di halaman hasil, aktifkan Google Maps Embed API pada project Google Cloud dan jalankan build dengan key yang dibatasi untuk domain aplikasi.
+
+```powershell
+flutter build web --release --no-pub --dart-define=GOOGLE_MAPS_EMBED_KEY=isi_key_maps
+```
+
+Key hanya dipakai untuk embed peta. Jangan menaruhnya di source code atau commit ke Git. Tanpa key, aplikasi memakai kartu rute dan membuka Google Maps di tab baru.
 
 ## 🧪 Pemeriksaan kode
 

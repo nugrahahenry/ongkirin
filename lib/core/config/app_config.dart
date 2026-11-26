@@ -2,6 +2,11 @@ import 'package:flutter/foundation.dart';
 
 class AppConfig {
   static const directBaseUrl = 'https://rajaongkir.komerce.id/api/v1';
+  static const googleMapsEmbedKey = String.fromEnvironment(
+    'GOOGLE_MAPS_EMBED_KEY',
+  );
+
+  static bool get hasGoogleMapsEmbedKey => googleMapsEmbedKey.isNotEmpty;
 
   static bool get usesWebProxy => kIsWeb;
 
