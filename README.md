@@ -76,6 +76,12 @@ Buka terminal kedua dari root project. Build release pertama membutuhkan waktu, 
 .\tool\serve-web-fast.ps1
 ```
 
+Jika sudah punya key Google Maps Embed API, key bisa diteruskan hanya saat build.
+
+```powershell
+.\tool\serve-web-fast.ps1 -GoogleMapsEmbedKey "isi_key_maps"
+```
+
 Setelah tidak ada perubahan pada kode Flutter, jalankan server tanpa build ulang:
 
 ```powershell
